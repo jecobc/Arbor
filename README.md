@@ -149,6 +149,8 @@ Workflow: [.github/workflows/ci.yml](.github/workflows/ci.yml) — two jobs:
 
 **Status:** pushed to [github.com/jecobc/Arbor](https://github.com/jecobc/Arbor), real Actions runs executed on every push — check the [Actions tab](https://github.com/jecobc/Arbor/actions) for the latest green run.
 
+![CI green run — both contracts and frontend jobs passing](screenshots/ci-green-run.png)
+
 ## Tests
 
 10 tests pass across both crates, all with real cross-contract assertions (SAC balance checks, registered `arbiter` test-contract ruling reads) — no internal shortcuts. Captured from a real `cargo test --workspace` run:
@@ -179,6 +181,8 @@ test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 ```
 
 Run it yourself: `cargo test --workspace` from the repo root.
+
+![Test output — 10 passing tests across arbiter and escrow, captured from the CI run](screenshots/test-output-ci.png)
 
 ## Error Handling & Loading States
 
@@ -239,15 +243,19 @@ Required env vars (`frontend/.env.local`, all `NEXT_PUBLIC_*`, baked at build ti
 
 ## Screenshots
 
-| Dashboard (disconnected) | Wallet options modal |
-|---|---|
-| ![Dashboard disconnected](screenshots/dashboard-disconnected.png) | ![Wallet options modal](screenshots/wallet-options-modal.png) |
+<table>
+<tr>
+<td><img src="screenshots/dashboard-disconnected.png" width="100%" alt="Dashboard — wallet disconnected" /><br/><sub>Dashboard, wallet disconnected</sub></td>
+<td><img src="screenshots/wallet-options-modal.png" width="100%" alt="Wallet options modal (StellarWalletsKit)" /><br/><sub>Wallet options modal</sub></td>
+<td><img src="screenshots/dashboard-connected-balance.png" width="100%" alt="Dashboard connected, XLM balance and escrow list" /><br/><sub>Connected — balance + escrow list</sub></td>
+</tr>
+</table>
 
-| Dashboard (connected, balance + escrows) |
-|---|
-| ![Dashboard connected](screenshots/dashboard-connected-balance.png) |
+**CI/CD green run** — see [CI/CD Pipeline](#cicd-pipeline) above.
 
-See the [Demo Video](#demo-video-1-2-minutes) above for the create flow, milestone stepper, dispute/resolve flow, and arbiter ruling view in motion.
+**Test output** — see [Tests](#tests) above.
+
+**Demo recording** — see [Demo Video](#demo-video-1-2-minutes) above for the create flow, milestone stepper, dispute/resolve flow, and arbiter ruling view in motion.
 
 ---
 
