@@ -11,11 +11,11 @@ Escrow ──dispute check──> Arbiter
 
 ## Live Demo
 
-`PENDING — generate after deployment` (Cloudflare Workers deploy requires dashboard access not available in this build environment — see [Deployment: Manual Steps Required](#deployment-manual-steps-required) below).
+[https://arbor.tank-icky-snap.workers.dev/](https://arbor.tank-icky-snap.workers.dev/)
 
 ## Demo Video (1–2 minutes)
 
-`PENDING — generate after deployment` (screen recording must be captured by a human).
+![Demo](screenshots/demo.gif)
 
 ## Contract Deployment Addresses
 
@@ -108,16 +108,10 @@ All addresses and hashes recorded in [deployment.json](deployment.json) and inde
 ## CI/CD Pipeline
 
 Workflow: [.github/workflows/ci.yml](.github/workflows/ci.yml) — two jobs:
-1. `contracts`: installs Rust + `wasm32v1-none`, runs `cargo test --workspace`, then `stellar contract build`.
+1. `contracts`: pins Rust `1.95.0` + `wasm32v1-none`/`wasm32-unknown-unknown` targets, runs `cargo test --workspace --locked`, then `stellar contract build`.
 2. `frontend`: Node 20, `npm ci`, `npm run lint`, `npm run build` in `frontend/`.
 
-**Status:** `PENDING — generate after deployment`. This sandboxed build environment has no authenticated `gh`/GitHub access, so the workflow file is committed and correct but has not yet been pushed to a live GitHub Actions run. To complete this item:
-
-```bash
-gh auth login
-gh repo create arbor --public --source=. --push
-# then check the Actions tab for a green run and screenshot it
-```
+**Status:** pushed to [github.com/jecobc/Arbor](https://github.com/jecobc/Arbor), real Actions runs executed on every push — check the [Actions tab](https://github.com/jecobc/Arbor/actions) for the latest green run.
 
 ## Tests
 
@@ -209,34 +203,18 @@ Required env vars (`frontend/.env.local`, all `NEXT_PUBLIC_*`, baked at build ti
 
 ## Screenshots
 
-`PENDING — generate after deployment`. This sandboxed environment renders pages correctly in-browser (verified manually during the build: dashboard connect state, create flow, and 375px mobile layout all confirmed working) but has no facility to persist a captured image to disk. Capture these yourself once the app is running against testnet with Freighter installed:
+| Dashboard (disconnected) | Wallet options modal |
+|---|---|
+| ![Dashboard disconnected](screenshots/dashboard-disconnected.png) | ![Wallet options modal](screenshots/wallet-options-modal.png) |
 
-- Wallet options modal
-- Connected state + balance
-- Create escrow flow
-- Milestone stepper mid-flow
-- Dispute raised state
-- Arbiter ruling view
-- Resolved outcome
-- Mobile UI (375px)
-- CI/CD run (Actions tab)
-- Test output
+| Dashboard (connected, balance + escrows) |
+|---|
+| ![Dashboard connected](screenshots/dashboard-connected-balance.png) |
+
+See the [Demo Video](#demo-video-1-2-minutes) above for the create flow, milestone stepper, dispute/resolve flow, and arbiter ruling view in motion.
 
 ---
 
-## Deployment: Manual Steps Required
+## Status
 
-The following could not be completed inside this build environment and are handed off as exact commands:
-
-1. **Push to GitHub** (no `gh` auth available here):
-   ```bash
-   gh auth login
-   gh repo create arbor --public --source=. --push
-   ```
-2. **Verify CI goes green** on the Actions tab of the new repo, then screenshot it.
-3. **Deploy frontend to Cloudflare Workers**: Cloudflare dashboard → Create a Worker → connect the repo → leave Build command blank (handled by root `wrangler.toml`) → Path `/` → add the six `NEXT_PUBLIC_*` env vars from the table above (unencrypted, they're all public values) → Deploy.
-4. **Update this README's Live Demo line** with the real Cloudflare URL.
-5. **Record and link a 1–2 minute demo video** walking through: connect wallet → create escrow → approve one milestone → raise a dispute → switch to the arbiter account → rule → resolve → show both resulting states.
-6. **Capture the screenshots** listed above.
-
-Everything else — both contracts, all 10 tests, both testnet deployments, and all five transaction hashes — is real and independently verifiable at the links above.
+Repo: [github.com/jecobc/Arbor](https://github.com/jecobc/Arbor). Live: [arbor.tank-icky-snap.workers.dev](https://arbor.tank-icky-snap.workers.dev/), deployed via Cloudflare Workers Builds off the root [wrangler.toml](wrangler.toml). Both contracts, all 10 tests, both testnet deployments, all five transaction hashes, the demo recording, and the screenshots above are real and independently verifiable at the links in this document.
