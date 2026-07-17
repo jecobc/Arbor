@@ -15,6 +15,7 @@ import { Dispute, EscrowData, Milestone, MilestoneStatus, Ruling } from './types
 
 function statusFromNative(raw: unknown): MilestoneStatus {
   if (typeof raw === 'string') return raw as MilestoneStatus;
+  if (Array.isArray(raw) && typeof raw[0] === 'string') return raw[0] as MilestoneStatus;
   if (raw && typeof raw === 'object') {
     const key = Object.keys(raw as object)[0];
     if (key) return key as MilestoneStatus;
@@ -24,6 +25,7 @@ function statusFromNative(raw: unknown): MilestoneStatus {
 
 function rulingFromNative(raw: unknown): Ruling {
   if (typeof raw === 'string') return raw as Ruling;
+  if (Array.isArray(raw) && typeof raw[0] === 'string') return raw[0] as Ruling;
   if (raw && typeof raw === 'object') {
     const key = Object.keys(raw as object)[0];
     if (key) return key as Ruling;
