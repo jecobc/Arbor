@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, Trash2 } from 'lucide-react';
 import { useWallet } from '@/lib/WalletContext';
 import { createEscrow } from '@/lib/api';
+import { xlmToStroops } from '@/lib/format';
 import { AppError } from '@/lib/types';
 import TxStatusToast, { TxState } from '@/components/TxStatus';
 import { ErrorBanner } from '@/components/ErrorStates';
@@ -47,7 +48,7 @@ export default function CreateEscrowPage() {
     try {
       const milestones = rows.map((r) => ({
         title: r.title,
-        amount: BigInt(Math.round(parseFloat(r.amount) * 10_000_000)),
+        amount: xlmToStroops(parseFloat(r.amount)),
       }));
       const hash = await createEscrow(address, freelancer, milestones);
       setTx({ status: 'success', hash });

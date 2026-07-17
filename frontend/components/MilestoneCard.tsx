@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Circle, Gavel, PlayCircle, Loader2 } from 'lucide-react';
 import { Milestone, MilestoneStatus } from '@/lib/types';
+import { stroopsToXlm } from '@/lib/format';
 import StampBadge from './StampBadge';
 
 const STEPS: MilestoneStatus[] = ['Funded', 'InProgress', 'Released'];
 
-function stepIndex(status: MilestoneStatus): number {
+export function stepIndex(status: MilestoneStatus): number {
   if (status === 'Disputed' || status === 'Refunded') return -1;
   const idx = STEPS.indexOf(status === 'Approved' ? 'Released' : status);
   return idx === -1 ? 0 : idx;
@@ -40,7 +41,7 @@ export default function MilestoneCard({
   const disputed = milestone.status === 'Disputed';
   const settled = milestone.status === 'Released' || milestone.status === 'Refunded';
   const current = stepIndex(milestone.status);
-  const xlm = (Number(milestone.amount) / 10_000_000).toFixed(2);
+  const xlm = stroopsToXlm(milestone.amount);
 
   return (
     <div className="ledger-card rounded-lg p-4 sm:p-5 hairline">

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import useSWR from 'swr';
 import { EscrowData } from '@/lib/types';
 import { getProgress } from '@/lib/api';
+import { stroopsToXlm } from '@/lib/format';
 
 export default function EscrowCard({ escrow, address }: { escrow: EscrowData; address: string }) {
   const { data: progress } = useSWR(['progress', escrow.id], () => getProgress(escrow.id), {
@@ -13,8 +14,8 @@ export default function EscrowCard({ escrow, address }: { escrow: EscrowData; ad
   const role = escrow.client === address ? 'Client' : escrow.freelancer === address ? 'Freelancer' : 'Observer';
   const disputed = escrow.milestones.some((m) => m.status === 'Disputed');
   const allSettled = escrow.milestones.every((m) => m.status === 'Released' || m.status === 'Refunded');
-  const releasedXlm = progress ? (Number(progress.released) / 10_000_000).toFixed(2) : '…';
-  const lockedXlm = progress ? (Number(progress.locked) / 10_000_000).toFixed(2) : '…';
+  const releasedXlm = progress ? stroopsToXlm(progress.released) : '…';
+  const lockedXlm = progress ? stroopsToXlm(progress.locked) : '…';
 
   return (
     <Link href={`/escrow?id=${escrow.id}`} className="ledger-card rounded-lg p-5 block hover:-translate-y-0.5 transition-transform">

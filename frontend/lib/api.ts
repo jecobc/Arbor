@@ -11,27 +11,9 @@ import {
   u64Arg,
   writeContract,
 } from './contract';
-import { Dispute, EscrowData, Milestone, MilestoneStatus, Ruling } from './types';
-
-function statusFromNative(raw: unknown): MilestoneStatus {
-  if (typeof raw === 'string') return raw as MilestoneStatus;
-  if (Array.isArray(raw) && typeof raw[0] === 'string') return raw[0] as MilestoneStatus;
-  if (raw && typeof raw === 'object') {
-    const key = Object.keys(raw as object)[0];
-    if (key) return key as MilestoneStatus;
-  }
-  return 'Funded';
-}
-
-function rulingFromNative(raw: unknown): Ruling {
-  if (typeof raw === 'string') return raw as Ruling;
-  if (Array.isArray(raw) && typeof raw[0] === 'string') return raw[0] as Ruling;
-  if (raw && typeof raw === 'object') {
-    const key = Object.keys(raw as object)[0];
-    if (key) return key as Ruling;
-  }
-  return 'Pending';
-}
+import { Dispute, EscrowData, Milestone, Ruling } from './types';
+import { stroopsToXlm } from './format';
+import { rulingFromNative, statusFromNative } from './decode';
 
 function parseEscrow(id: number, raw: any): EscrowData {
   const milestones: Milestone[] = raw.milestones.map((m: any) => ({
@@ -200,6 +182,5 @@ export async function ruleDispute(
 
 export async function getXlmBalance(address: string): Promise<string> {
   const raw = await readContract(TOKEN_CONTRACT_ADDRESS, 'balance', [addrArg(address)]);
-  const stroops = BigInt(raw);
-  return (Number(stroops) / 10_000_000).toFixed(2);
+  return stroopsToXlm(BigInt(raw));
 }

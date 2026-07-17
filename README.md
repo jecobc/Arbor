@@ -153,7 +153,7 @@ Workflow: [.github/workflows/ci.yml](.github/workflows/ci.yml) — two jobs:
 
 ## Tests
 
-10 tests pass across both crates, all with real cross-contract assertions (SAC balance checks, registered `arbiter` test-contract ruling reads) — no internal shortcuts. Captured from a real `cargo test --workspace` run:
+**Contracts:** 10 tests pass across both crates, all with real cross-contract assertions (SAC balance checks, registered `arbiter` test-contract ruling reads) — no internal shortcuts. Captured from a real `cargo test --workspace` run:
 
 ```
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
@@ -184,6 +184,20 @@ Run it yourself: `cargo test --workspace` from the repo root.
 
 ![Test output — 10 passing tests across arbiter and escrow, captured from the CI run](screenshots/test-output-ci.png)
 
+**Frontend:** 11 tests ([Vitest](https://vitest.dev)) covering [`lib/decode.ts`](frontend/lib/decode.ts) (Soroban unit-enum decoding — a real production bug caught during this build: `scValToNative` returns `["Funded"]`, not a string or `{ Funded: [] }`, and every role-gated button silently broke until this was fixed and regression-tested) and [`lib/format.ts`](frontend/lib/format.ts) (stroop↔XLM conversion). Captured from a real `npm run test` run:
+
+```
+ RUN  v2.1.9 frontend
+
+ ✓ lib/format.test.ts (5 tests) 1ms
+ ✓ lib/decode.test.ts (6 tests) 1ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+```
+
+Run it yourself: `cd frontend && npm run test`.
+
 ## Error Handling & Loading States
 
 Four distinct, individually styled states ([frontend/components/ErrorStates.tsx](frontend/components/ErrorStates.tsx)):
@@ -197,7 +211,11 @@ Loading: skeleton placeholders for escrow lists and milestone cards ([frontend/c
 
 ## Mobile Responsive Frontend
 
-Verified in-browser at 375×812 (dev server, desktop Chrome-based preview): the navbar collapses the balance display, the milestone stepper (`stepper-horizontal` in [frontend/app/globals.css](frontend/app/globals.css)) switches to a vertical list below 480px, and role-gated action buttons stack full width. Screenshot capture from this sandboxed environment could not be persisted to a file — `PENDING — generate after deployment` for the literal screenshot artifact; reproduce with:
+Verified at 375×812 against the **live testnet deployment** (not just local dev): the navbar collapses the balance display, the milestone stepper (`stepper-horizontal` in [frontend/app/globals.css](frontend/app/globals.css)) switches to a vertical list below 480px, and role-gated action buttons stack full width. No horizontal overflow.
+
+<img src="screenshots/mobile-375px.png" width="320" alt="Mobile dashboard at 375px width, live deployment" />
+
+Reproduce yourself:
 
 ```bash
 cd frontend && npm run dev
@@ -227,6 +245,7 @@ stellar contract build
 cd frontend
 npm install
 cp .env.local.example .env.local   # fill in contract addresses, see table below
+npm run test   # 11 unit tests
 npm run dev
 ```
 
@@ -251,9 +270,11 @@ Required env vars (`frontend/.env.local`, all `NEXT_PUBLIC_*`, baked at build ti
 </tr>
 </table>
 
+**Mobile UI (375px, live deployment)** — see [Mobile Responsive Frontend](#mobile-responsive-frontend) above.
+
 **CI/CD green run** — see [CI/CD Pipeline](#cicd-pipeline) above.
 
-**Test output** — see [Tests](#tests) above.
+**Test output (contracts + frontend)** — see [Tests](#tests) above.
 
 **Demo recording** — see [Demo Video](#demo-video-1-2-minutes) above for the create flow, milestone stepper, dispute/resolve flow, and arbiter ruling view in motion.
 
