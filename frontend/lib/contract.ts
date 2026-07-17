@@ -6,6 +6,7 @@ import {
   TransactionBuilder,
   Address,
   Account,
+  Keypair,
   nativeToScVal,
   scValToNative,
   xdr,
@@ -23,7 +24,7 @@ export async function readContract(contractId: string, method: string, args: xdr
   const srv = server();
   const contract = new Contract(contractId);
   // A throwaway, never-funded source account is sufficient for a read-only simulation.
-  const account = new Account('GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF', '0');
+  const account = new Account(Keypair.random().publicKey(), '0');
   const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: NETWORK_PASSPHRASE })
     .addOperation(contract.call(method, ...args))
     .setTimeout(30)
