@@ -1,5 +1,6 @@
 /target
 Cargo.lock
+contracts/*/test_snapshots/
 node_modules/
 frontend/.next/
 frontend/out/
