@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+4:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --seal: #8a4b12;
+}
+
+html,
+body {
+  background-color: #f4ecd8;
+  color: #1c2b24;
+}
+
+.dark-mode-page {
+  background-color: #10161f;
+  color: #f4ecd8;
+}
+
+.hairline {
+  border-top: 1px solid #c9bd9e;
+}
+
+.ledger-card {
+  background: #fffaf0;
+  border: 1px solid #c9bd9e;
+  box-shadow: 0 1px 0 #c9bd9e, 0 8px 24px -12px rgba(28, 43, 36, 0.25);
+}
+
+.seal-stamp {
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: 0.08em;
+  border: 3px solid currentColor;
+  border-radius: 4px;
+  padding: 0.15rem 0.65rem;
+  transform: rotate(-6deg);
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+@media (max-width: 480px) {
+  .stepper-horizontal {
+    flex-direction: column;
+  }
+}
