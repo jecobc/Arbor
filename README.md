@@ -1,4 +1,20 @@
-# Arbor — Milestone Escrow with Dispute Arbitration on Stellar Soroban
+# 📜 Arbor — Milestone Escrow with Dispute Arbitration on Stellar Soroban
+
+[![CI](https://github.com/jecobc/Arbor/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jecobc/Arbor/actions/workflows/ci.yml)
+[![Stellar Testnet](https://img.shields.io/badge/Stellar-Testnet-7B61FF?logo=stellar&logoColor=white)](https://stellar.org)
+[![Soroban](https://img.shields.io/badge/Soroban-SDK%20v22-FF5A00?logo=rust&logoColor=white)](https://soroban.stellar.org)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Cloudflare Workers](https://img.shields.io/badge/Deployed-Cloudflare%20Workers-F38020?logo=cloudflare&logoColor=white)](https://arbor.tank-icky-snap.workers.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22C55E.svg)](LICENSE)
+
+<div align="center">
+
+**A milestone escrow where approving a milestone triggers a real Escrow → Token payout, and a raised dispute triggers a real Escrow → Arbiter ruling — two distinct, verifiable cross-contract relationships, not one.**
+
+### 🔗 [Live Demo → arbor.tank-icky-snap.workers.dev](https://arbor.tank-icky-snap.workers.dev/)
+
+</div>
 
 Arbor is a milestone-based freelance escrow on Stellar Soroban. A client funds an escrow for a freelancer across 2–4 milestones; approving a milestone releases its payment directly. Either party can dispute a milestone before release, which routes the decision to a neutral **arbiter** smart contract — a genuine third contract, not a shortcut — that rules in favor of the freelancer (release) or the client (refund). The design is a formal "ledger & seal" notary aesthetic: parchment tones, hairline dividers, and a wax-seal stamp animation on every state transition.
 
@@ -6,6 +22,26 @@ Arbor is a milestone-based freelance escrow on Stellar Soroban. A client funds a
 Escrow ──funds/payout──> Token (native XLM via SAC)
 Escrow ──dispute check──> Arbiter
 ```
+
+## Table of Contents
+
+- [Live Demo](#live-demo)
+- [Demo Video (1–2 minutes)](#demo-video-1-2-minutes)
+- [Contract Deployment Addresses](#contract-deployment-addresses)
+- [Transaction Hash for Contract Interaction](#transaction-hash-for-contract-interaction)
+- [Inter-Contract Communication](#inter-contract-communication)
+- [Event Streaming & Real-Time Updates](#event-streaming--real-time-updates)
+- [Smart Contract Deployment Workflow](#smart-contract-deployment-workflow)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Tests](#tests)
+- [Error Handling & Loading States](#error-handling--loading-states)
+- [Mobile Responsive Frontend](#mobile-responsive-frontend)
+- [Production-Ready Architecture](#production-ready-architecture)
+- [Setup Instructions](#setup-instructions)
+- [Screenshots](#screenshots)
+- [Status](#status)
+- [Commit History Summary](#commit-history-summary)
+- [License](#license)
 
 ---
 
@@ -218,3 +254,35 @@ See the [Demo Video](#demo-video-1-2-minutes) above for the create flow, milesto
 ## Status
 
 Repo: [github.com/jecobc/Arbor](https://github.com/jecobc/Arbor). Live: [arbor.tank-icky-snap.workers.dev](https://arbor.tank-icky-snap.workers.dev/), deployed via Cloudflare Workers Builds off the root [wrangler.toml](wrangler.toml). Both contracts, all 10 tests, both testnet deployments, all five transaction hashes, the demo recording, and the screenshots above are real and independently verifiable at the links in this document.
+
+## Commit History Summary
+
+Built incrementally in real, separately-labeled commits — no squashing, no single mega-dump:
+
+| # | Commit Message |
+|---|---------------|
+| 1 | `chore: project scaffold (Next.js + Soroban workspace, two contract crates)` |
+| 2 | `feat: arbiter contract data model and file_dispute` |
+| 3 | `feat: arbiter rule() with auth-gated arbiter address` |
+| 4 | `test: arbiter unit tests` |
+| 5 | `feat: escrow contract data model and create_escrow with token custody` |
+| 6 | `feat: start_milestone and approve_and_release with Escrow to Token payout` |
+| 7 | `feat: raise_dispute with real Escrow to Arbiter inter-contract call` |
+| 8 | `feat: resolve_dispute with Escrow to Arbiter ruling read + Escrow to Token payout` |
+| 9 | `test: escrow unit tests (7 passing, real cross-contract assertions)` |
+| 10 | `feat: wallet connect/disconnect via StellarWalletsKit` |
+| 11 | `feat: design system (ledger and seal aesthetic, stamp animation)` |
+| 12 | `feat: create escrow UI with transaction status tracking` |
+| 13 | `feat: live milestone-status stepper with polling` |
+| 14 | `feat: dispute flow UI + arbiter ruling view` |
+| 15 | `feat: error handling (wallet missing, rejected signature, unauthorized action)` |
+| 16 | `feat: mobile responsive layout (verified at 375px and 768px)` |
+| 17 | `ci: GitHub Actions pipeline for both contracts + frontend` |
+| 18 | `chore: testnet deployment + real contract addresses wired in` |
+| 19 | `docs: README with full evidence (addresses, tx hashes, test output)` |
+
+Plus post-deployment reliability fixes (dependency/CI/wallet-integration bugs found and fixed after real testnet + Cloudflare use) — full history: [View on GitHub ↗](https://github.com/jecobc/Arbor/commits/main)
+
+## License
+
+[MIT](LICENSE)
