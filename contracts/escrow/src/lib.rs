@@ -159,6 +159,39 @@ impl Escrow {
             .publish(("escrow", symbol_short!("disputed")), (id, index, dispute_id));
     }
 
+    pub fn resolve_dispute(env: Env, id: u64, index: u32) {
+        let mut data = Self::load(&env, id);
+
+        let mut milestone = data.milestones.get(index).expect("invalid milestone index");
+        if milestone.status != MilestoneStatus::Disputed {
+            panic!("milestone not disputed");
+        }
+
+        let arbiter_client = ArbiterClient::new(&env, &data.arbiter_contract);
+        let ruling = arbiter_client.get_ruling(&id, &index);
+
+        let amount = milestone.amount;
+        let token_client = token::Client::new(&env, &data.token);
+
+        match ruling {
+            Ruling::Pending => panic!("awaiting arbiter ruling"),
+            Ruling::FavorFreelancer => {
+                token_client.transfer(&env.current_contract_address(), &data.freelancer, &amount);
+                milestone.status = MilestoneStatus::Released;
+            }
+            Ruling::FavorClient => {
+                token_client.transfer(&env.current_contract_address(), &data.client, &amount);
+                milestone.status = MilestoneStatus::Refunded;
+            }
+        }
+
+        data.milestones.set(index, milestone.clone());
+        env.storage().instance().set(&DataKey::Escrow(id), &data);
+
+        env.events()
+            .publish(("escrow", symbol_short!("resolved")), (id, index, milestone.status));
+    }
+
     pub fn get_escrow(env: Env, id: u64) -> EscrowData {
         Self::load(&env, id)
     }
