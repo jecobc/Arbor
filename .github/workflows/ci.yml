@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.95.0
         with:
           targets: wasm32v1-none
       - uses: Swatinem/rust-cache@v2
       - name: cargo test (arbiter + escrow)
-        run: cargo test --workspace
+        run: cargo test --workspace --locked
       - name: install stellar CLI
         run: cargo install --locked stellar-cli --version 22.0.1 || cargo install --locked stellar-cli
       - name: stellar contract build
