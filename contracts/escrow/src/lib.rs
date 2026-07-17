@@ -99,28 +99,40 @@ impl Escrow {
         id
     }
 
-    pub fn raise_dispute(env: Env, id: u64, index: u32, caller: Address, reason: String) {
-        caller.require_auth();
-
+    pub fn start_milestone(env: Env, id: u64, index: u32) {
         let mut data = Self::load(&env, id);
-        if caller != data.client && caller != data.freelancer {
-            panic!("caller must be client or freelancer");
+        data.freelancer.require_auth();
+
+        let mut milestone = data.milestones.get(index).expect("invalid milestone index");
+        if milestone.status != MilestoneStatus::Funded {
+            panic!("milestone not in Funded state");
         }
+        milestone.status = MilestoneStatus::InProgress;
+        data.milestones.set(index, milestone);
+
+        env.storage().instance().set(&DataKey::Escrow(id), &data);
+        env.events().publish(("escrow", symbol_short!("started")), (id, index));
+    }
+
+    pub fn approve_and_release(env: Env, id: u64, index: u32) {
+        let mut data = Self::load(&env, id);
+        data.client.require_auth();
 
         let mut milestone = data.milestones.get(index).expect("invalid milestone index");
         if milestone.status != MilestoneStatus::Funded && milestone.status != MilestoneStatus::InProgress {
-            panic!("milestone not disputable");
+            panic!("milestone not releasable");
         }
 
-        let arbiter_client = ArbiterClient::new(&env, &data.arbiter_contract);
-        let dispute_id = arbiter_client.file_dispute(&id, &index, &caller, &reason);
+        let amount = milestone.amount;
+        let token_client = token::Client::new(&env, &data.token);
+        token_client.transfer(&env.current_contract_address(), &data.freelancer, &amount);
 
-        milestone.status = MilestoneStatus::Disputed;
+        milestone.status = MilestoneStatus::Released;
         data.milestones.set(index, milestone);
         env.storage().instance().set(&DataKey::Escrow(id), &data);
 
         env.events()
-            .publish(("escrow", symbol_short!("disputed")), (id, index, dispute_id));
+            .publish(("escrow", symbol_short!("released")), (id, index, amount));
     }
 
     pub fn resolve_dispute(env: Env, id: u64, index: u32) {
