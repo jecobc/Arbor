@@ -90,6 +90,31 @@ impl Arbiter {
         dispute_id
     }
 
+    pub fn rule(env: Env, dispute_id: u64, ruling: Ruling) {
+        let arbiter_address: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::ArbiterAddress)
+            .expect("not initialized");
+        arbiter_address.require_auth();
+
+        let mut dispute: Dispute = env
+            .storage()
+            .instance()
+            .get(&DataKey::Dispute(dispute_id))
+            .expect("dispute not found");
+
+        if dispute.ruling != Ruling::Pending {
+            panic!("dispute already ruled");
+        }
+
+        dispute.ruling = ruling.clone();
+        env.storage().instance().set(&DataKey::Dispute(dispute_id), &dispute);
+
+        env.events()
+            .publish(("arbiter", symbol_short!("ruled")), (dispute_id, ruling));
+    }
+
     pub fn get_ruling(env: Env, escrow_id: u64, milestone_index: u32) -> Ruling {
         let dispute_id: u64 = env
             .storage()
