@@ -27,6 +27,12 @@ Escrow ──dispute check──> Arbiter
 
 - [Live Demo](#live-demo)
 - [Demo Video (1–2 minutes)](#demo-video-1-2-minutes)
+- [Project Description](#project-description)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Smart Contracts (Testnet)](#smart-contracts-testnet)
+- [Wallet Connection](#wallet-connection)
+- [Core Mechanics](#core-mechanics)
 - [Contract Deployment Addresses](#contract-deployment-addresses)
 - [Transaction Hash for Contract Interaction](#transaction-hash-for-contract-interaction)
 - [Inter-Contract Communication](#inter-contract-communication)
@@ -52,6 +58,98 @@ Escrow ──dispute check──> Arbiter
 ## Demo Video (1–2 minutes)
 
 ![Demo](screenshots/demo.gif)
+
+## Project Description
+
+A client and a freelancer agree on 2–4 milestones. The client funds the full sum up front into the `escrow` contract, which custodies it via a real inter-contract call to the native XLM token. As work completes, the client approves each milestone individually, releasing that milestone's payment immediately — no waiting for the whole project. If either side disputes a milestone before it's released, the milestone freezes: no further approval or refund is possible until a neutral, independently-deployed `arbiter` contract rules on it. Once ruled, anyone can call `resolve_dispute` to settle the milestone according to the ruling. The three contracts (`escrow`, `arbiter`, and the native XLM `token`/SAC) are kept as separate, independently-addressed deployments on purpose — see [Production-Ready Architecture](#production-ready-architecture).
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                      User Browser                          │
+│  ┌────────────────────────────────────────────────────┐   │
+│  │        Next.js 14 Frontend (TypeScript, static)      │   │
+│  │  NavBar │ CreateEscrow │ EscrowCard │ MilestoneCard   │   │
+│  │  ArbiterView │ TxStatusToast │ ErrorStates            │   │
+│  └───────────┬───────────────────────┬──────────────────┘   │
+│              │ Wallet signing         │ Soroban RPC          │
+│              ▼                        ▼                     │
+│  ┌───────────────────┐   ┌─────────────────────────────┐   │
+│  │ StellarWalletsKit  │   │  lib/contract.ts             │   │
+│  │ (Freighter, etc.)  │   │  TransactionBuilder +          │  │
+│  └───────────────────┘   │  simulateTransaction /          │ │
+│                          │  sendTransaction / getTransaction │ │
+│                          └────────────┬────────────────────┘ │
+└───────────────────────────────────────┼──────────────────────┘
+                                        │ HTTPS / Soroban RPC
+                                        ▼
+                             ┌─────────────────────┐
+                             │   Stellar Testnet    │
+                             │   (Soroban RPC)      │
+                             └──────────┬───────────┘
+                                        │
+                    ┌───────────────────┴───────────────────┐
+                    ▼                                       │
+       ┌────────────────────────┐                          │
+       │   Escrow Contract       │                          │
+       │   CAFJBQDCA2Y...NUCN    │                          │
+       │                         │                          │
+       │  create_escrow()   ─────┼──┐                       │
+       │  approve_and_release() ─┼──┤ Escrow → Token         │
+       │  raise_dispute()   ─────┼──┼──┐                    │
+       │  resolve_dispute() ─────┼──┼──┤ Escrow → Arbiter    │
+       │  get_escrow() / get_progress() │                    │
+       └─────────────────────────┘  │  │                    │
+                                    ▼  ▼                     │
+       ┌────────────────────────────────────┐   ┌──────────────────────────┐
+       │  Native XLM SAC (Token Contract)     │   │   Arbiter Contract        │
+       │  CDLZFC3SYJYDZT7K67...HOTD            │   │   CATRV7RKBY24I6...R2PC   │
+       │                                      │   │                          │
+       │  transfer(from, to, amount)          │   │  file_dispute()          │
+       │  balance(address)                    │   │  rule()                  │
+       └────────────────────────────────────┘   │  get_ruling() / get_dispute() │
+                                                 └──────────────────────────┘
+```
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Smart contracts | Rust + Soroban SDK 22, `wasm32v1-none` / `wasm32-unknown-unknown` targets |
+| Frontend framework | Next.js 14 (App Router), static export |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Wallet integration | `@creit.tech/stellar-wallets-kit` |
+| Stellar SDK | `@stellar/stellar-sdk` v16 |
+| Motion | Framer Motion |
+| Data polling | SWR |
+| Frontend testing | Vitest |
+| Icons | lucide-react |
+| Deployment | Cloudflare Workers (static assets) |
+| CI/CD | GitHub Actions |
+
+## Smart Contracts (Testnet)
+
+| Contract | Address | Stellar Expert |
+|---|---|---|
+| **Escrow** | `CAFJBQDCA2YBYMWSAMR64EDX52DYCNZ7C2E6JXFL5OGW6IMJXE62NUCN` | [View ↗](https://stellar.expert/explorer/testnet/contract/CAFJBQDCA2YBYMWSAMR64EDX52DYCNZ7C2E6JXFL5OGW6IMJXE62NUCN) |
+| **Arbiter** | `CATRV7RKBY24I6S3GU3JP6FNGXXR4BD6ZCVUSG6X5CBZAR4VLDZ4R2PC` | [View ↗](https://stellar.expert/explorer/testnet/contract/CATRV7RKBY24I6S3GU3JP6FNGXXR4BD6ZCVUSG6X5CBZAR4VLDZ4R2PC) |
+| **Native XLM SAC** (token) | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` | [View ↗](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC) |
+
+(Full table with the neutral arbiter account and all five interaction tx hashes is below in [Contract Deployment Addresses](#contract-deployment-addresses) and [Transaction Hash for Contract Interaction](#transaction-hash-for-contract-interaction).)
+
+## Wallet Connection
+
+`@creit.tech/stellar-wallets-kit` ([frontend/lib/wallet.ts](frontend/lib/wallet.ts)) drives connect/disconnect. `connectWallet()` opens the kit's modal (Freighter, Albedo, xBull, HOT Wallet, etc. — see [Screenshots](#screenshots) for the real modal), resolves the selected wallet's address, and stores it in [`WalletContext`](frontend/lib/WalletContext.tsx). Every write call signs its built transaction XDR via `walletsKit.signTransaction(...)` ([frontend/lib/contract.ts](frontend/lib/contract.ts)) before submission — Arbor never touches a private key. Freighter is the primary tested wallet.
+
+## Core Mechanics
+
+- **Full up-front funding**: `create_escrow` requires the client to transfer the sum of all 2–4 milestone amounts to the escrow contract in the same transaction that creates it — there is no under-funded or partially-funded state.
+- **Per-milestone release**: `approve_and_release` pays out exactly one milestone's amount, independent of the others, as soon as the client approves.
+- **Dispute freeze**: `raise_dispute` is only valid while a milestone is `Funded` or `InProgress`. Once disputed, `approve_and_release` on that milestone panics — the only way out is a ruling.
+- **Neutral, non-bypassable ruling**: only the address the `arbiter` contract was `init`-ed with can call `rule()`, and a decided dispute cannot be re-ruled (`test_cannot_rerule_decided_dispute`).
+- **Ruling-driven settlement**: `resolve_dispute` panics with `"awaiting arbiter ruling"` if called before a ruling lands (`test_resolve_dispute_before_ruling_fails`), and otherwise pays the freelancer or refunds the client based on the real, on-chain ruling — never a locally-cached copy.
 
 ## Contract Deployment Addresses
 
