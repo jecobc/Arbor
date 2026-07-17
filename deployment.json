@@ -1,0 +1,15 @@
+{
+  "network": "testnet",
+  "arbiter_contract": "CATRV7RKBY24I6S3GU3JP6FNGXXR4BD6ZCVUSG6X5CBZAR4VLDZ4R2PC",
+  "escrow_contract": "CAFJBQDCA2YBYMWSAMR64EDX52DYCNZ7C2E6JXFL5OGW6IMJXE62NUCN",
+  "token_contract_native_sac": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+  "arbiter_account_address": "GA3KQN3NYZ5BOATCLL25F2BULS6RIHE2MQ3ZHC4UY4WX3KG4WDZA6YP6",
+  "transactions": {
+    "create_escrow": "9fd56c4e613613a6bd6c8872c7adf54e4244e31a2fdec37526e8a2ac6f3701a8",
+    "approve_and_release": "d03042e23fae0850237007fbc8b3e2d46d92eeb41301315855ff1efc84304322",
+    "raise_dispute": "4e099769c2bd86e6943cf5c63a6a6af24419cf6cf5acfbf8f66dadc673b6abd0",
+    "rule": "3aee518dbf9bdbbdbf123797fad9b4e853ef448868321ef23cbb785ed9c243cd",
+    "resolve_dispute": "fe7148ae539bfcdc0c402dbf7cbfbab929a03d55cf3eb082ed58bb8b34e58838"
+  },
+  "escrow_id_used": 1
+}
